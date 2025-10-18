@@ -132,7 +132,7 @@ std::vector<uint8_t> sha256(const std::vector<uint8_t> &data) {
         uint32_t g = h[6];
         uint32_t h_val = h[7];
 
-        // Main loop:
+        // Main loop
         for (int i = 0; i < 64; i++) {
             uint32_t S1 = right_rotate(e, 6) ^ right_rotate(e, 11) ^ right_rotate(e, 25);
             uint32_t ch = (e & f) ^ ((~e) & g);
@@ -173,7 +173,6 @@ std::vector<uint8_t> sha256(const std::vector<uint8_t> &data) {
     return digest;
 }
 
-// Convert a byte vector to a hexadecimal string.
 std::string to_hex_string(const std::vector<uint8_t> &data) {
     std::ostringstream oss;
     for (uint8_t byte : data) {
@@ -185,7 +184,7 @@ std::string to_hex_string(const std::vector<uint8_t> &data) {
 int main() {
     std::string url = "https://quod.lib.umich.edu/cgi/r/rsv/rsv-idx?type=DIV1&byte=4697892";
 
-    // Retrieve the page using libcurl.
+    // Retrieve the page
     std::string htmlContent;
     try {
         htmlContent = get_entire_content(url);
@@ -194,17 +193,16 @@ int main() {
         return 1;
     }
 
-    // Strip HTML tags to extract text content.
+
     std::string textContent = strip_html(htmlContent);
 
     // Print the extracted text content.
     std::cout << "Extracted Text Content:\n";
     std::cout << textContent << "\n\n";
 
-    // Convert text content (UTF-8) to a vector of bytes.
+    //  (UTF-8) to  bytes
     std::vector<uint8_t> contentBytes(textContent.begin(), textContent.end());
 
-    // Compute SHA-256 hash over the content.
     std::vector<uint8_t> digest = sha256(contentBytes);
     std::string hashHex = to_hex_string(digest);
 
