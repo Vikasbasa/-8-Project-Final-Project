@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <curl/curl.h>
 
-// Callback for libcurl to write downloaded data into a std::string.
+//  downloaded data 
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     size_t totalSize = size * nmemb;
     std::string* str = static_cast<std::string*>(userp);
@@ -15,7 +15,7 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     return totalSize;
 }
 
-// Download entire content from a URL using libcurl.
+// Download data
 std::string get_entire_content(const std::string &url) {
     CURL* curl = curl_easy_init();
     std::string readBuffer;
@@ -36,8 +36,8 @@ std::string get_entire_content(const std::string &url) {
     return readBuffer;
 }
 
-// Simple function to strip HTML tags from a string.
-// Note: This is a naive implementation and may not handle all edge cases.
+// remove html
+
 std::string strip_html(const std::string &html) {
     std::string text;
     bool inTag = false;
@@ -59,10 +59,8 @@ uint32_t right_rotate(uint32_t x, unsigned n) {
     return (x >> n) | (x << (32 - n));
 }
 
-// Implementation of SHA-256.
-// Accepts a vector of unsigned char (bytes) and returns a vector of 32 bytes (256 bits).
+// Apply SHA-256.
 std::vector<uint8_t> sha256(const std::vector<uint8_t> &data) {
-    // Initial hash values
     uint32_t h[8] = {
         0x6a09e667,
         0xbb67ae85,
@@ -74,7 +72,7 @@ std::vector<uint8_t> sha256(const std::vector<uint8_t> &data) {
         0x5be0cd19,
     };
 
-    // Constants for SHA-256
+    //  SHA-256 Constants
     uint32_t k[64] = {
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
         0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -94,25 +92,20 @@ std::vector<uint8_t> sha256(const std::vector<uint8_t> &data) {
         0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
     };
 
-    // Copy input data into a mutable vector for padding.
     std::vector<uint8_t> msg = data;
     uint64_t original_bit_length = msg.size() * 8;
 
-    // Append the bit '1' to the message
     msg.push_back(0x80);
 
-    // Append k bits (0 ≤ k < 512) so that the resulting message length (in bits)
-    // is congruent to 448 modulo 512.
+    // Append k bits 
     while ((msg.size() * 8) % 512 != 448) {
         msg.push_back(0x00);
     }
 
-    // Append the original message length as a 64-bit big-endian integer.
     for (int i = 7; i >= 0; i--) {
         msg.push_back(static_cast<uint8_t>((original_bit_length >> (i * 8)) & 0xff));
     }
 
-    // Process the message in successive 512-bit chunks:
     for (size_t offset = 0; offset < msg.size(); offset += 64) {
         uint32_t w[64];
         // Copy chunk into first 16 words w[0..15] (big-endian)
@@ -122,14 +115,14 @@ std::vector<uint8_t> sha256(const std::vector<uint8_t> &data) {
                    (msg[offset + i*4 + 2] << 8) |
                    (msg[offset + i*4 + 3]);
         }
-        // Extend the first 16 words into the remaining 48 words:
+        // Extend  16 words  -- 48 words:
         for (int i = 16; i < 64; i++) {
             uint32_t s0 = right_rotate(w[i-15], 7) ^ right_rotate(w[i-15], 18) ^ (w[i-15] >> 3);
             uint32_t s1 = right_rotate(w[i-2], 17) ^ right_rotate(w[i-2], 19) ^ (w[i-2] >> 10);
             w[i] = (w[i-16] + s0 + w[i-7] + s1) & 0xffffffff;
         }
 
-        // Initialize working variables to current hash value:
+        // Initialize working variables
         uint32_t a = h[0];
         uint32_t b = h[1];
         uint32_t c = h[2];
@@ -158,7 +151,7 @@ std::vector<uint8_t> sha256(const std::vector<uint8_t> &data) {
             a = (temp1 + temp2) & 0xffffffff;
         }
 
-        // Add the compressed chunk to the current hash value:
+        // compressed chunk 
         h[0] = (h[0] + a) & 0xffffffff;
         h[1] = (h[1] + b) & 0xffffffff;
         h[2] = (h[2] + c) & 0xffffffff;
@@ -169,7 +162,7 @@ std::vector<uint8_t> sha256(const std::vector<uint8_t> &data) {
         h[7] = (h[7] + h_val) & 0xffffffff;
     }
 
-    // Produce the final hash as 32 bytes in big-endian order.
+    // 32 bytes hash
     std::vector<uint8_t> digest;
     for (int i = 0; i < 8; i++) {
         digest.push_back((h[i] >> 24) & 0xff);
